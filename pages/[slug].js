@@ -4,7 +4,6 @@ import { auth, db } from "utils/firebase";
 import {
   arrayUnion,
   doc,
-  getDoc,
   onSnapshot,
   Timestamp,
   updateDoc,
@@ -18,6 +17,7 @@ export default function Details() {
   const routeData = router.query;
   const [message, setMessage] = useState("");
   const [allMessages, setAllMessages] = useState([]);
+  const [OPMessageTimestamp, setOPMessageTimestamp] = useState(null);
 
   const submitMessage = async () => {
     !auth.currentUser ? router.push("/auth/login") : null;
@@ -35,7 +35,7 @@ export default function Details() {
         message,
         avatar: auth.currentUser.photoURL,
         username: auth.currentUser.displayName,
-        time: Timestamp.now(),
+        timestamp: Timestamp.now(),
       }),
     });
 
@@ -52,6 +52,7 @@ export default function Details() {
       * setAllMessages(docSnap.data().comments);
     */
     const unsubscribe = onSnapshot(docRef, (snapshot) => {
+      setOPMessageTimestamp(snapshot.data().timestamp);
       setAllMessages(snapshot.data().comments);
     });
 
@@ -65,43 +66,36 @@ export default function Details() {
   }, [router.isReady]);
 
   return (
-    <div>
-      <Message {...routeData}></Message>
-      <div className="my-4">
-        <div className="flex">
-          <input
-            className="w-full bg-gray-800 p-2 text-slate-100 text-sm"
-            type="text"
+    <div className="my-12 text-lg font-medium lg:flex lg:flex-col lg:justify-center lg:items-center">
+      <Message {...routeData} timestamp={OPMessageTimestamp}></Message>
+      <div className="flex flex-col justify-center items-center md:w-3/4 md:mx-auto lg:w-1/2 xl:w-2/5 3xl:w-2/6">
+        <div className="w-full flex flex-wrap mt-12 mb-6">
+          <textarea
+            className="w-full bg-slate-200 p-4 text-base resize-none rounded-md"
+            maxLength={300}
+            rows={5}
+            wrap="soft"
             value={message}
             placeholder="Be witty please 😀"
             onChange={(e) => setMessage(e.target.value)}
-          />
+          ></textarea>
           <button
-            className="bg-cyan-500 text-slate-100 py-2 px-4 text-sm"
+            className="w-full bg-cyan-500 text-slate-100 py-2 px-4 text-sm rounded-md"
             onClick={() => submitMessage()}
           >
             Submit
           </button>
         </div>
-        <div className="py-6">
-          <h2 className="font-bold">Comments</h2>
-          {allMessages?.map((message, id) => {
-            console.log("ID => ", id, ", MESS => ", message);
-
-            return (
-              <div key={id} className="bg-slate-50 p-4 my-4 border-2">
-                <div className="flex items-center gap-2 mb-4">
-                  <img
-                    className="w-10 rounded-full"
-                    src={message.avatar}
-                    alt=""
-                  />
-                  <h2>{message.username}</h2>
-                </div>
-                <h2>{message.message}</h2>
-              </div>
-            );
-          })}
+        <div className="w-full py-6">
+          <h2 className="font-bold p-4">Comments</h2>
+          {allMessages?.map((message, id) => (
+            <Message
+              key={id}
+              inComments
+              {...routeData}
+              timestamp={message.timestamp}
+            ></Message>
+          ))}
         </div>
       </div>
     </div>

@@ -22,16 +22,16 @@ export default function Login() {
   };
 
   useEffect(() => {
-    user ? route.push("/") : console.log("Not logged in!");
+    user ? route.push("/") : null;
   }, [user]);
 
   return (
-    <div className="shadow-xl mt-32 p-10 text-gray-700 rounded-lg">
+    <div className="shadow-xl mt-32 p-10 text-gray-700 rounded-md">
       <h2 className="text-2xl font-medium">Join Today</h2>
       <div className="py-4">
         <h3 className="py-4">Sign in with one of the providers</h3>
         <button
-          className="w-full text-slate-100 bg-gray-700 font-medium rounded-lg flex align-middle p-4 gap-2"
+          className="w-full text-slate-100 bg-gray-700 font-medium rounded-md flex align-middle p-4 gap-2"
           onClick={() => GoogleLogin()}
         >
           <FcGoogle className="text-2xl" />
